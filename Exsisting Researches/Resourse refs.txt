@@ -1,0 +1,2 @@
+1. 80k Bangla Words List (Bangla Dictionary) - https://www.kaggle.com/datasets/mahadivai/spelling-checker-v1
+2. Bangla Noun Suffix List - https://www.kaggle.com/datasets/hasibalfuad/bangla-noun-suffix-list

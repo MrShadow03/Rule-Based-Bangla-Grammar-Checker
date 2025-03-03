@@ -11,7 +11,7 @@ class Noun {
     protected function determinerRule($words, $word): bool {
         $determiners = config('grammar.determiner');
         $previousWord = $words[array_search($word, $words) - 1] ?? null;
-        return in_array($previousWord, $determiners);
+        return in_array($previousWord, $determiners) && (!in_array($word, $determiners));
     }
 
     protected function suffixRule($word): bool {
