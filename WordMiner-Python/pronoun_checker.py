@@ -1,52 +1,99 @@
-class NFA:
-    def __init__(self, transitions, start_state):
-        self.transitions = transitions  # Structured NFA transition table
-        self.start_state = start_state  # Start state
+import csv
 
-    def accepts(self, word, state=None):
-        """Recursively check if the NFA accepts the given word."""
-        if state is None:
-            state = self.start_state  # Start from the initial state
-        
-        if not word:  # If we've processed all characters
-            return state in {'ই', 'ও'}  # Check if it's a valid final state
-        
-        for key in self.transitions.get(state, {}):  # Check available transitions
-            if word.startswith(key):  # If the word matches a transition
-                next_part = word[len(key):]  # Remove the matched part
-                next_states = self.transitions[state][key]  # Get possible next states
-                
-                if isinstance(next_states, set):  # Direct final states
-                    if any(self.accepts(next_part, next_state) for next_state in next_states):
+class Pronoun:
+    def __init__(self, tree):
+        self.tree = tree
+
+    def is_pronoun(self, word):
+        def _traverse(node, remaining_word):
+            if not remaining_word:
+                return True  # The entire word has been matched
+            for prefix, child_node in node.items():
+                if remaining_word.startswith(prefix):
+                    if _traverse(child_node, remaining_word[len(prefix):]):
                         return True
-                
-                elif isinstance(next_states, dict):  # Nested transitions
-                    for sub_state, sub_next_states in next_states.items():
-                        if next_part.startswith(sub_state):
-                            sub_remaining = next_part[len(sub_state):]
-                            if any(self.accepts(sub_remaining, final_state) for final_state in sub_next_states):
-                                return True
-        return False
+            return False
 
+        return _traverse(self.tree, word)
+    
+    def generate_pronouns(self):
+        pronouns = []
 
+        def _traverse(node, current_word, current_depth):
+            if current_depth >= 2:  # Include pronouns with depth >= 2
+                pronouns.append((current_word, current_depth))
+            for prefix, child_node in node.items():
+                _traverse(child_node, current_word + prefix, current_depth + 1)
+
+        _traverse(self.tree, "", 0)
+        return pronouns
+
+    def view_pronouns(self, filename="Possible_pronouns.csv"):
+        pronouns = self.generate_pronouns()
+        with open(filename, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(["index", "pronoun", "tree_depth"])  # Write header
+            for index, (pronoun, depth) in enumerate(pronouns, start=1):
+                writer.writerow([index, pronoun, depth])
+
+possessive_suffix_tree = {
+    'টি' : {
+        'কে' : {'ই': {}, 'ও': {}},
+        'ই': {},
+        'ও': {}
+    },
+    'টা' : {
+        'কে' : {'ই': {}, 'ও': {}},
+        'ই': {},
+        'ও': {}
+    },
+    'টুকু' : {
+        'কে' : {'ই': {}, 'ও': {}},
+        'ই': {},
+        'ও': {}
+    },
+    'গুলো' : {
+        'কে' : {'ই': {}, 'ও': {}},
+        'ই': {},
+        'ও': {}
+    },
+    'গুলি' : {
+        'কে' : {'ই': {}, 'ও': {}},
+        'ই': {},
+        'ও': {}
+    },
+}
 # Define the NFA with your structure
-nfa_transitions = {
+tree = {
     'আম': {
-        'ই': {'ই', 'ও'}, 
-        'ার': {'ই', 'ও'}, 
-        'া': {
-            'য়': {'ই', 'ও'}, 
-            'রা': {'ই', 'ও'}
-        }
+        'ি': {'ই': {}, 'ও': {}}, 
+        'ার': {
+            **possessive_suffix_tree,
+            'ই': {}, 
+            'ও': {}
+            },
+        'রা': {'ই': {}, 'ও': {}},
+    },
+    'আমা' : {
+        'য়' : {'ও': {}},
+        'কে' : {'ই': {}, 'ও': {}},
+        'দের' : {
+            **possessive_suffix_tree,
+            'কে' : {'ই': {}, 'ও': {}},
+            'ই': {}, 
+            'ও': {},
+            },
+        'দিগকে' : {'ই': {}, 'ও': {}},
     }
 }
 
-# Create an NFA instance
-nfa = NFA(nfa_transitions, 'আম')
+pronoun_detector = Pronoun(tree)
+
+pronoun_detector.view_pronouns()
 
 # Test words
-test_words = ["আমি", "আমার", "আমরা", "আমায়", "আমিও"]
+test_words = ["আমি", "আমার", "আমরা", "আমায়", "আমিও", "আমাদেরও"]
 
 # Check if each word is accepted
 for word in test_words:
-    print(f"'{word}' is a pronoun: {nfa.accepts(word)}")
+    print(f"'{word}' is a pronoun: {pronoun_detector.is_pronoun(word)}")
