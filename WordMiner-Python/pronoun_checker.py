@@ -36,31 +36,29 @@ class Pronoun:
             for index, (pronoun, depth) in enumerate(pronouns, start=1):
                 writer.writerow([index, pronoun, depth])
 
+possessive_tree_commons = {
+        'কে' : {'ই': {}, 'ও': {}},
+        'র' : {'ই': {}, 'ও': {}},
+        'তে' : {'ই': {}, 'ও': {}},
+        'ই': {},
+        'ও': {}
+}
+
 possessive_suffix_tree = {
     'টি' : {
-        'কে' : {'ই': {}, 'ও': {}},
-        'ই': {},
-        'ও': {}
+        **possessive_tree_commons
     },
     'টা' : {
-        'কে' : {'ই': {}, 'ও': {}},
-        'ই': {},
-        'ও': {}
+        **possessive_tree_commons
     },
     'টুকু' : {
-        'কে' : {'ই': {}, 'ও': {}},
-        'ই': {},
-        'ও': {}
+        **possessive_tree_commons
     },
     'গুলো' : {
-        'কে' : {'ই': {}, 'ও': {}},
-        'ই': {},
-        'ও': {}
+        **possessive_tree_commons
     },
     'গুলি' : {
-        'কে' : {'ই': {}, 'ও': {}},
-        'ই': {},
-        'ও': {}
+        **possessive_tree_commons
     },
 }
 # Define the NFA with your structure
